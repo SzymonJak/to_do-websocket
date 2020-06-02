@@ -1,6 +1,5 @@
 import React from 'react';
 import List from './List';
-import Form from './Form';
 import io from 'socket.io-client';
 
 import randomID from '@szymonjak/id-generator';
@@ -12,21 +11,17 @@ class App extends React.Component {
   }
 
   componentDidMount(){
-    this.socket = io('localhost:8000');
+    this.socket = io.connect('localhost:8000');
     this.socket.on('addTask', task => this.addTask(task));
     this.socket.on('removeTask', id => this.removeTask(id));
     this.socket.on('updateData', tasks => this.updateTasks(tasks));
   }
 
-  removeTask(event, id){
-    event.preventDefault();
-    const elemIndex = this.state.tasks.findIndex(i => i.id === id);
-    
-      this.socket.emit('removeTask', elemIndex);
-    
-    this.setState(
-      this.state.tasks.splice(elemIndex, 1),
-    )
+  removeTask(id){
+    this.setState({
+      tasks: this.state.tasks.filter(i => i.id !== id),
+    })
+    this.socket.emit('removeTask', id);
   }
 
   updateTaskName(event){
@@ -40,6 +35,10 @@ class App extends React.Component {
     const task = {id: randomID(8), name: this.state.taskName};
     this.addTask(task);
     this.socket.emit('addTask', task);
+
+    this.setState({
+      taskName: '',
+    })
   }
 
   addTask(task){
@@ -50,7 +49,7 @@ class App extends React.Component {
 
   updateTasks(tasks){
     this.setState({
-        tasks: [tasks],
+        tasks: tasks,
     })
   }
 
@@ -70,12 +69,12 @@ class App extends React.Component {
               <li key={elem.id}>
                 {elem.name}
                 <button className='btn btn--red'
-                  onClick={event => {this.removeTask(event, elem.id)}}
+                  onClick={() => {this.removeTask(elem.id)}}
                 >Remove</button>
               </li>
             ))}
           </List>
-          <Form onSubmit={event => this.submitForm(event)}>
+          <form onSubmit={event => this.submitForm(event)} id='add-task-form'>
             <input
               className='text-input'
               autoComplete='off'
@@ -85,7 +84,7 @@ class App extends React.Component {
               value={taskName}
               onChange={event => {this.updateTaskName(event)}}/>
             <button className='btn' type='submit'>Add</button>
-          </Form>
+          </form>
         </section>
       </div>
     );

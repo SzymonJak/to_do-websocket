@@ -4,13 +4,11 @@ const socket = require('socket.io');
 
 const app = express();
 
-const tasks = [{id: 2, name: 'Shopping'}, {id: 4, name: 'Go out with the dog'}];
+const tasks = [{id: 2, name: 'Shopping'}, {id: 4, name: 'Go out with the dog'}, {id: 6, name: 'Do the loundry'}, {id: 8, name: 'Clean windows'}];
 
-app.use(express.static(path.join(__dirname, '/client')));
-
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, '/client/src/index.js'));
-// });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '/client/public/index.html'));
+});
 
 const server = app.listen(process.env.PORT || 8000, () => {
     console.log('Server is running port:8000');
@@ -23,10 +21,13 @@ io.on('connection', (socket) => {
     socket.on('addTask', (task) => {
         tasks.push(task);
         socket.broadcast.emit('addTask', task);
+        console.log(tasks);
     });
-    socket.on('removeTask', (elemIndex) => {
+    socket.on('removeTask', (id) => {
+        const elemIndex = tasks.findIndex(i => i.id === id);
         tasks.splice(elemIndex, 1);
-        socket.broadcast.emit('removeTask', elemIndex);
+
+        socket.broadcast.emit('updateData', tasks);
     });
 });
 

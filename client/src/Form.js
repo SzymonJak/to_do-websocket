@@ -4,9 +4,9 @@ class Form extends React.Component {
     render() {
         const { children } = this.props;
         return (
-                <form id='add-task-form'>
-                    {children}
-                </form>
+            <form id='add-task-form'>
+                {children}
+            </form>
         );
     };
 };
