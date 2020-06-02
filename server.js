@@ -21,7 +21,6 @@ io.on('connection', (socket) => {
     socket.on('addTask', (task) => {
         tasks.push(task);
         socket.broadcast.emit('addTask', task);
-        console.log(tasks);
     });
     socket.on('removeTask', (id) => {
         const elemIndex = tasks.findIndex(i => i.id === id);
